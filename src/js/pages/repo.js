@@ -6,7 +6,7 @@ function renderHeader(username) {
   return `
     <header class="site-header">
       <div class="logo" id="header-logo">
-        <i class="bi bi-github"></i> Github Finder
+        <i class="bi bi-github"></i> GitHub Finder
       </div>
       <div class="header-search">
         <i class="bi bi-search"></i>
@@ -24,17 +24,23 @@ function bindHeaderSearch() {
   document
     .getElementById("header-logo")
     ?.addEventListener("click", () => navigate("/"));
-  const input = document.getElementById("header-input");
-  const btn = document.getElementById("header-btn");
-  const search = () => {
-    const val = input?.value.trim();
-    if (!val) return;
-    navigate(`/user/${encodeURIComponent(val)}`);
+
+  const makeSearch = (inputId, btnId) => {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    const search = () => {
+      const val = input?.value.trim();
+      if (!val) return;
+      navigate(`/user/${encodeURIComponent(val)}`);
+    };
+    btn?.addEventListener("click", search);
+    input?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") search();
+    });
   };
-  btn?.addEventListener("click", search);
-  input?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") search();
-  });
+
+  makeSearch("header-input", "header-btn");
+  makeSearch("mobile-search-input", "mobile-search-btn");
 }
 
 export async function renderRepoPage({ params }) {
@@ -42,6 +48,17 @@ export async function renderRepoPage({ params }) {
 
   document.getElementById("view").innerHTML = `
     ${renderHeader(username)}
+    <div class="mobile-search-bar">
+      <div class="mobile-search-inner">
+        <i class="bi bi-search"></i>
+        <input type="text" id="mobile-search-input"
+               placeholder="Buscar usuário…"
+               value="${escHtml(username)}"
+               autocomplete="off"
+               spellcheck="false" />
+        <button id="mobile-search-btn">Buscar</button>
+      </div>
+    </div>
     <div class="repo-detail">
       <nav class="breadcrumb">
         <a href="#/">início</a>

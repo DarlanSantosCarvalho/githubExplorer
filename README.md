@@ -38,7 +38,7 @@ Ou use a extensão **Live Server** no VS Code.
 ## Estrutura do projeto
 
 ```
-github-explorer/
+github-finder/
 ├── index.html
 ├── README.md
 └── src/

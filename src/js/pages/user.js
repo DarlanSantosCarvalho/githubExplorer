@@ -69,7 +69,8 @@ function renderReposGrid(repos) {
   if (loadBtn) {
     loadBtn.style.display = hasMore ? "flex" : "none";
     const btn = loadBtn.querySelector("#btn-load-more");
-    if (btn) btn.textContent = `Carregar mais`;
+    if (btn)
+      btn.textContent = `Load More (${sorted.length - visibleCount} restantes)`;
   }
 
   grid.querySelectorAll(".repo-card").forEach((card) => {
@@ -125,7 +126,7 @@ function renderHeader(username) {
   return `
     <header class="site-header">
       <div class="logo" id="header-logo">
-        <i class="bi bi-github"></i> Github Finder
+        <i class="bi bi-github"></i> GitHub Finder
       </div>
       <div class="header-search">
         <i class="bi bi-search"></i>
@@ -143,18 +144,25 @@ function bindHeaderSearch() {
   document
     .getElementById("header-logo")
     ?.addEventListener("click", () => navigate("/"));
-  const input = document.getElementById("header-input");
-  const btn = document.getElementById("header-btn");
-  const search = () => {
-    const val = input?.value.trim();
-    if (!val) return;
-    currentSort = "stars";
-    navigate(`/user/${encodeURIComponent(val)}`);
+
+  const makeSearch = (inputId, btnId) => {
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    const search = () => {
+      const val = input?.value.trim();
+      if (!val) return;
+      currentSort = "stars";
+      visibleCount = PAGE_SIZE;
+      navigate(`/user/${encodeURIComponent(val)}`);
+    };
+    btn?.addEventListener("click", search);
+    input?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") search();
+    });
   };
-  btn?.addEventListener("click", search);
-  input?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") search();
-  });
+
+  makeSearch("header-input", "header-btn");
+  makeSearch("mobile-search-input", "mobile-search-btn");
 }
 
 export async function renderUserPage({ params }) {
@@ -164,6 +172,17 @@ export async function renderUserPage({ params }) {
 
   document.getElementById("view").innerHTML = `
     ${renderHeader(username)}
+    <div class="mobile-search-bar">
+      <div class="mobile-search-inner">
+        <i class="bi bi-search"></i>
+        <input type="text" id="mobile-search-input"
+               placeholder="Buscar usuário…"
+               value="${escHtml(username)}"
+               autocomplete="off"
+               spellcheck="false" />
+        <button id="mobile-search-btn">Buscar</button>
+      </div>
+    </div>
     <div class="profile-page">
       <nav class="breadcrumb">
         <a href="#/">início</a>
@@ -205,7 +224,7 @@ export async function renderUserPage({ params }) {
         </div>
         <div class="repos-grid" id="repos-grid"></div>
         <div class="load-more-wrap" id="load-more-wrap" style="display:none">
-          <button class="btn-load-more" id="btn-load-more">Carregar</button>
+          <button class="btn-load-more" id="btn-load-more">Load More</button>
         </div>
       </section>
     `;
